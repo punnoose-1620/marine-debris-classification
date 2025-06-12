@@ -1,0 +1,22 @@
+Marine Debris Classification - Model Training Logs
+=======================================================
+Generated on: 2025-06-12 10:34:39
+
+Training Summary:
+- Total models trained: 2
+- Classification models: 1
+- Regression models: 1
+
+Training Logs:
+  ✅ Random Forest Classifier trained successfully
+  ✅ Random Forest Regressor trained successfully
+
+Model Performance Summary:
+  random_forest (Classification):
+    - Accuracy: 0.9935
+    - Precision: 0.9925
+    - Recall: 0.9935
+    - F1-Score: 0.9930
+  random_forest (Regression):
+    - Accuracy: 0.8725
+    - R² Score: 0.8725
