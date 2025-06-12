@@ -2,7 +2,7 @@
 
 🌊 **Comprehensive Analysis and Classification of Marine Debris using NASA/NOAA Dataset**
 
-![Display Image](./assets/displayImage.png "Marine Debris Classification Project Overview")
+![Display Image](displayImage.png "Marine Debris Classification Project Overview")
 
 ## 📋 Project Overview
 
