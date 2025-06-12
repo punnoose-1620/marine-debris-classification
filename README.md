@@ -2,6 +2,9 @@
 
 🌊 **Comprehensive Analysis and Classification of Marine Debris using NASA/NOAA Dataset**
 
+![Display Image](@displayImage.png)
+
+
 ## 📋 Project Overview
 
 This project implements a comprehensive machine learning pipeline for classifying marine debris sources and types using advanced data science techniques. The system analyzes environmental data, debris characteristics, and geographic information to predict:
@@ -219,6 +222,10 @@ marine-debris-classification/
 - Confusion matrices and ROC curves
 - Feature importance analysis
 
+### 📊 Interactive Dashboard
+
+View the complete analysis results and visualizations in our [Interactive Dashboard](visualizations/marine_debris_dashboard.html)
+
 ## 🗺️ Geospatial Analysis Features
 
 ### Interactive Maps
@@ -332,21 +339,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Marine debris research community** for foundational work
 - **Open source community** for tools and libraries
 
-## 📞 Contact and Support
-
-For questions, suggestions, or collaboration opportunities:
-
-- **Project Issues**: Open an issue on GitHub
-- **Technical Support**: Check the documentation or create a discussion
-- **Research Collaboration**: Contact the development team
-
 ## 🔗 Additional Resources
 
 - [NASA Marine Debris Program](https://marinedebris.noaa.gov/)
 - [Ocean Conservancy Reports](https://oceanconservancy.org/trash-free-seas/)
 - [Marine Debris Research Database](https://marinelitter.org/)
 - [Plastic Pollution Coalition](https://www.plasticpollutioncoalition.org/)
-
----
-
-**🌊 Together, we can make a difference in marine conservation through data-driven insights and actionable research.** 

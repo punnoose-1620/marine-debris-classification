@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marine Debris Classification Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .performance-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .excellent { background: #48bb78; }
+        .good { background: #38b2ac; }
+        .average { background: #ed8936; }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .feature-importance {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .feature-bar {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .feature-value {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-top: 3px solid #667eea;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .predictions-sample {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .prediction-chip {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .high { background: #fed7d7; color: #c53030; }
+        .medium { background: #feebc8; color: #c05621; }
+        .low { background: #c6f6d5; color: #2f855a; }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌊 Marine Debris Classification Dashboard</h1>
+            <p>Comprehensive analysis of marine debris classification models and environmental patterns</p>
+        </div>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Dataset Overview -->
+            <div class="card">
+                <h2>📊 Dataset Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">10,000</span>
+                        <span class="stat-label">Total Records</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">32</span>
+                        <span class="stat-label">Features</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">9</span>
+                        <span class="stat-label">Years</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Countries</span>
+                    </div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Date Range:</span>
+                    <span class="metric-value">2015-01-01 to 2023-12-31</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Geographic Coverage:</span>
+                    <span class="metric-value">5 Countries, 8 States</span>
+                </div>
+            </div>
+
+            <!-- Model Performance -->
+            <div class="card">
+                <h2>🎯 Model Performance</h2>
+                <div class="metric-item">
+                    <span class="metric-label">Random Forest Classifier:</span>
+                    <span class="performance-badge excellent">99.35% Accuracy</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Precision:</span>
+                    <span class="metric-value">99.25%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Recall:</span>
+                    <span class="metric-value">99.35%</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">F1-Score:</span>
+                    <span class="metric-value">99.30%</span>
+                </div>
+                <hr style="margin: 15px 0;">
+                <div class="metric-item">
+                    <span class="metric-label">Random Forest Regressor:</span>
+                    <span class="performance-badge good">87.25% Accuracy</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Debris Statistics -->
+            <div class="card">
+                <h2>🗑️ Debris Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">250K+</span>
+                        <span class="stat-label">Total Debris</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">25.0</span>
+                        <span class="stat-label">Avg per Survey</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">82.3%</span>
+                        <span class="stat-label">Plastic Items</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">45</span>
+                        <span class="stat-label">Max Single Survey</span>
+                    </div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Most Common Debris:</span>
+                    <span class="metric-value">Total Plastic</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Debris Types Tracked:</span>
+                    <span class="metric-value">10 Types</span>
+                </div>
+            </div>
+
+            <!-- Environmental Impact -->
+            <div class="card">
+                <h2>🌤️ Environmental Factors</h2>
+                <div class="metric-item">
+                    <span class="metric-label">Weather Impact:</span>
+                    <span class="metric-value">Rainy > Sunny</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Storm Correlation:</span>
+                    <span class="metric-value">2.22% Impact</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Peak Season:</span>
+                    <span class="metric-value">Spring</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Lowest Season:</span>
+                    <span class="metric-value">Summer</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="environmentalChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Geographic Patterns -->
+            <div class="card">
+                <h2>🗺️ Geographic Patterns</h2>
+                <div class="metric-item">
+                    <span class="metric-label">Highest Debris Country:</span>
+                    <span class="metric-value">Australia</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Lowest Debris Country:</span>
+                    <span class="metric-value">UK</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">25.13</span>
+                        <span class="stat-label">East Coast</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">24.93</span>
+                        <span class="stat-label">Gulf Coast</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">25.00</span>
+                        <span class="stat-label">Unknown</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">24.79</span>
+                        <span class="stat-label">West Coast</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Importance (Classification) -->
+            <div class="card full-width">
+                <h2>🔍 Feature Importance - Classification Model</h2>
+                <div class="feature-importance">
+                    <div class="feature-bar">
+                        <div class="feature-name">Total Plastic</div>
+                        <div class="feature-value">29.34% - Most Important</div>
+                    </div>
+                    <div class="feature-bar">
+                        <div class="feature-name">Total Non-Plastic</div>
+                        <div class="feature-value">18.67%</div>
+                    </div>
+                    <div class="feature-bar">
+                        <div class="feature-name">Plastic Ratio</div>
+                        <div class="feature-value">9.87%</div>
+                    </div>
+                    <div class="feature-bar">
+                        <div class="feature-name">Plastic Bottles</div>
+                        <div class="feature-value">9.74%</div>
+                    </div>
+                    <div class="feature-bar">
+                        <div class="feature-name">Plastic Bags</div>
+                        <div class="feature-value">5.56%</div>
+                    </div>
+                    <div class="feature-bar">
+                        <div class="feature-name">Metal Cans</div>
+                        <div class="feature-value">3.80%</div>
+                    </div>
+                    <div class="feature-bar">
+                        <div class="feature-name">Plastic Food Containers</div>
+                        <div class="feature-value">3.12%</div>
+                    </div>
+                    <div class="feature-bar">
+                        <div class="feature-name">Debris Density</div>
+                        <div class="feature-value">2.18%</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="featureImportanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Model Predictions Sample -->
+            <div class="card full-width">
+                <h2>🎲 Model Predictions Sample</h2>
+                <p style="margin-bottom: 15px; color: #718096;">First 50 predictions from Random Forest Classifier:</p>
+                <div class="predictions-sample" id="predictionsSample">
+                    <!-- Predictions will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Temporal Patterns -->
+            <div class="card">
+                <h2>📅 Temporal Analysis</h2>
+                <div class="metric-item">
+                    <span class="metric-label">Most Active Year:</span>
+                    <span class="metric-value">2016</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Surveys per Year:</span>
+                    <span class="metric-value">1,111 avg</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Total Survey Years:</span>
+                    <span class="metric-value">9 years</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Seasonal Variance:</span>
+                    <span class="metric-value">12.54%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Performance Chart
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+                datasets: [{
+                    label: 'Classification (%)',
+                    data: [99.35, 99.25, 99.35, 99.30],
+                    backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2
+                }, {
+                    label: 'Regression (%)',
+                    data: [87.25, 87.25, 87.25, 87.25],
+                    backgroundColor: 'rgba(118, 75, 162, 0.6)',
+                    borderColor: 'rgba(118, 75, 162, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Environmental Chart
+        const environmentalCtx = document.getElementById('environmentalChart').getContext('2d');
+        new Chart(environmentalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Spring', 'Summer', 'Fall', 'Winter'],
+                datasets: [{
+                    data: [25.5, 24.5, 25.0, 25.0],
+                    backgroundColor: [
+                        'rgba(72, 187, 120, 0.8)',
+                        'rgba(237, 137, 54, 0.8)',
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Feature Importance Chart
+        const featureCtx = document.getElementById('featureImportanceChart').getContext('2d');
+        new Chart(featureCtx, {
+            type: 'horizontalBar',
+            data: {
+                labels: ['Total Plastic', 'Total Non-Plastic', 'Plastic Ratio', 'Plastic Bottles', 'Plastic Bags', 'Metal Cans'],
+                datasets: [{
+                    label: 'Importance (%)',
+                    data: [29.34, 18.67, 9.87, 9.74, 5.56, 3.80],
+                    backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Populate predictions sample
+        const predictions = ["High", "Medium", "High", "Medium", "High", "High", "Medium", "Medium", "Medium", "Medium", "High", "High", "High", "Medium", "High", "Medium", "Medium", "Medium", "High", "Medium", "Medium", "High", "High", "High", "High", "Medium", "Medium", "Medium", "High", "Medium", "Medium", "High", "Medium", "High", "Medium", "High", "High", "Medium", "High", "Medium", "Medium", "Medium", "Medium", "High", "High", "High", "Medium", "High", "Medium", "High"];
+        
+        const predictionsSample = document.getElementById('predictionsSample');
+        predictions.forEach(prediction => {
+            const chip = document.createElement('span');
+            chip.className = `prediction-chip ${prediction.toLowerCase()}`;
+            chip.textContent = prediction;
+            predictionsSample.appendChild(chip);
+        });
+
+        // Add some interactive effects
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html> 
